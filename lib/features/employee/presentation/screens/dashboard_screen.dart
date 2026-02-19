@@ -36,9 +36,18 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
         ),
         automaticallyImplyLeading: false,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => context.read<AuthCubit>().logout(),
+          BlocConsumer<AuthCubit, AuthState>(
+            listener: (context, state) {
+              if (state is AuthLogout) {
+                Navigator.pushReplacementNamed(context, '/');
+              }
+            },
+            builder: (context, state) {
+              return IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: () => context.read<AuthCubit>().logout(),
+              );
+            },
           ),
         ],
       ),
@@ -51,9 +60,6 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                 backgroundColor: Colors.red,
               ),
             );
-          }
-          if (state is AuthLogout) {
-            Navigator.pushReplacementNamed(context, '/');
           }
         },
         child: BlocBuilder<EmployeeCubit, EmployeeState>(

@@ -1,3 +1,4 @@
+import 'package:barber_app/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -48,7 +49,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 listener: (context, state) {
                   if (state is AuthError) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.message)),
+                      SnackBar(
+                        content: Text(state.message),
+                        backgroundColor: AppColors.accent,
+                      ),
                     );
                   }
                 },
@@ -58,9 +62,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     isLoading: state is AuthLoading,
                     onPressed: () {
                       context.read<AuthCubit>().login(
-                            _emailController.text,
-                            _passwordController.text,
-                          );
+                        _emailController.text,
+                        _passwordController.text,
+                      );
                     },
                   );
                 },

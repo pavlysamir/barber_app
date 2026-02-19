@@ -11,7 +11,8 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.backgroundLight,
       colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
-        secondary: AppColors.accent,
+        onPrimary: Colors.white,
+        secondary: AppColors.charcoal,
         surface: AppColors.surfaceLight,
         error: AppColors.error,
       ),
@@ -22,7 +23,22 @@ class AppTheme {
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.surfaceLight,
         foregroundColor: AppColors.textPrimaryLight,
+        centerTitle: true,
         elevation: 0,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: AppColors.surfaceLight,
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
     );
   }
@@ -35,7 +51,8 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.backgroundDark,
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
-        secondary: AppColors.accent,
+        onPrimary: Colors.white,
+        secondary: AppColors.gold,
         surface: AppColors.surfaceDark,
         error: AppColors.error,
       ),
@@ -44,9 +61,24 @@ class AppTheme {
         displayColor: AppColors.textPrimaryDark,
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.surfaceDark,
-        foregroundColor: AppColors.textPrimaryDark,
+        backgroundColor: AppColors.black,
+        foregroundColor: AppColors.gold,
+        centerTitle: true,
         elevation: 0,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: AppColors.surfaceDark,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
     );
   }
