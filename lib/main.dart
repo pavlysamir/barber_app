@@ -16,10 +16,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // عمليات async ثقيلة قبل runApp
   await Firebase.initializeApp();
   await CacheHelper.init();
-  Bloc.observer = SimpleBlocObserver();
   await setupServiceLocator();
+
+  Bloc.observer = SimpleBlocObserver();
+
   runApp(const BarberApp());
 }
 
@@ -44,15 +48,12 @@ class BarberApp extends StatelessWidget {
             darkTheme: AppTheme.darkTheme,
             themeMode: ThemeMode.system,
             locale: const Locale('ar'),
-
             supportedLocales: const [Locale('ar'), Locale('en')],
-
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-
             localeResolutionCallback: (locale, supportedLocales) {
               return const Locale('ar');
             },
@@ -75,7 +76,7 @@ class RootNavigator extends StatelessWidget {
           return state.user.role.name == 'admin'
               ? const AdminDashboardScreen()
               : const EmployeeDashboardScreen();
-        } else if (state is AuthLoading) {
+        } else if (state is AuthLoading || state is AuthInitial) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
