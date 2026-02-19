@@ -31,18 +31,24 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           child: const Text('لوحة التحكم'),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => context.read<AuthCubit>().logout(),
+          BlocConsumer<AuthCubit, AuthState>(
+            listener: (context, state) {
+              if (state is AuthLogout) {
+                Navigator.pushReplacementNamed(context, '/');
+              }
+            },
+            builder: (context, state) {
+              return IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: () => context.read<AuthCubit>().logout(),
+              );
+            },
           ),
         ],
+        automaticallyImplyLeading: false,
       ),
       body: BlocConsumer<AdminCubit, AdminState>(
-        listener: (context, state) {
-          if (state is AuthLogout) {
-            Navigator.pushReplacementNamed(context, '/');
-          }
-        },
+        listener: (context, state) {},
         builder: (context, state) {
           if (state is AdminLoading) {
             return const Center(child: CircularProgressIndicator());
