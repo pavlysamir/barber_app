@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:barber_app/features/admin/managers/admin_cubit.dart';
 import 'package:barber_app/features/auth/managers/auth_cubit.dart';
 import 'package:barber_app/features/admin/presentation/screens/employee_details_screen.dart';
+import 'package:barber_app/features/admin/presentation/screens/add_employee_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -47,8 +48,24 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         ],
         automaticallyImplyLeading: false,
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddEmployeeScreen()),
+          );
+        },
+        icon: const Icon(Icons.person_add),
+        label: const Text('إضافة موظف'),
+      ),
       body: BlocConsumer<AdminCubit, AdminState>(
         listener: (context, state) {},
+        buildWhen: (previous, current) {
+          // Only rebuild UI for these states, ignore the rest
+          return current is AdminLoading ||
+              current is AdminReportLoaded ||
+              current is AdminError;
+        },
         builder: (context, state) {
           if (state is AdminLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -74,15 +91,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                   Expanded(
                     child: ListView.builder(
-                      itemCount: state.employeeTotals.length,
+                      itemCount: state.employeeMap.length,
                       itemBuilder: (context, index) {
-                        final employeeId = state.employeeTotals.keys.elementAt(
+                        final employeeId = state.employeeMap.keys.elementAt(
                           index,
                         );
-                        final total = state.employeeTotals[employeeId];
+                        final employee = state.employeeMap[employeeId]!;
+                        final total = state.employeeTotals[employeeId] ?? 0.0;
                         final customerCount =
                             state.employeeCustomerCounts[employeeId] ?? 0;
-                        final employee = state.employeeMap[employeeId];
 
                         return Card(
                           margin: EdgeInsets.symmetric(vertical: 8.h),
@@ -93,23 +110,41 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                 MaterialPageRoute(
                                   builder: (context) => EmployeeDetailsScreen(
                                     employeeId: employeeId,
-                                    employeeName: employee?.name ?? employeeId,
+                                    employeeName: employee.name,
                                   ),
                                 ),
                               );
                             },
                             leading: CircleAvatar(
                               child: Text(
-                                (employee?.name ?? 'M').substring(0, 1),
+                                employee.name.isNotEmpty
+                                    ? employee.name.substring(0, 1)
+                                    : 'M',
                               ),
                             ),
-                            title: Text(employee?.name ?? 'موظف: $employeeId'),
+                            title: Text(employee.name),
                             subtitle: Text('عدد الزبائن: $customerCount'),
-                            trailing: Text(
-                              '$total ر.س',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                            trailing: Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Text(
+                                  '$total جنيه',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.delete_outline,
+                                    color: Colors.redAccent,
+                                  ),
+                                  onPressed: () => _showDeleteConfirmation(
+                                    context,
+                                    employeeId,
+                                    employee.name,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         );
@@ -122,6 +157,34 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           }
           return Center(child: Text('something went wrong'));
         },
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(
+    BuildContext context,
+    String employeeId,
+    String? name,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('حذف موظف'),
+        content: Text('هل أنت متأكد من حذف الموظف "${name ?? employeeId}"؟'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              context.read<AdminCubit>().deleteEmployee(employeeId);
+              Navigator.pop(context);
+            },
+            child: const Text('حذف'),
+          ),
+        ],
       ),
     );
   }

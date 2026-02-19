@@ -20,6 +20,6 @@ Future<void> setupServiceLocator() async {
     () => EmployeeRepositoryImpl(firestore: getIt()),
   );
   getIt.registerLazySingleton<AdminRepository>(
-    () => AdminRepositoryImpl(firestore: getIt()),
+    () => AdminRepositoryImpl(firestore: getIt(), auth: getIt()),
   );
 }

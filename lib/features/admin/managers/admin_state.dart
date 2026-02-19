@@ -46,3 +46,5 @@ class AdminError extends AdminState {
   @override
   List<Object?> get props => [message];
 }
+
+class AdminAddEmployeeSuccess extends AdminState {}

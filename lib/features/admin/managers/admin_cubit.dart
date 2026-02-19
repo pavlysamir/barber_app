@@ -64,4 +64,32 @@ class AdminCubit extends Cubit<AdminState> {
       emit(AdminError(e.toString()));
     }
   }
+
+  Future<void> addEmployee({
+    required String email,
+    required String password,
+    required String name,
+  }) async {
+    emit(AdminLoading());
+    try {
+      await _repository.createEmployee(
+        email: email,
+        password: password,
+        name: name,
+      );
+      emit(AdminAddEmployeeSuccess());
+    } catch (e) {
+      emit(AdminError(e.toString()));
+    }
+  }
+
+  Future<void> deleteEmployee(String employeeId) async {
+    try {
+      await _repository.deleteEmployee(employeeId);
+      // Refresh the report/list to reflect deletion
+      listenToDailyReport(DateTime.now());
+    } catch (e) {
+      emit(AdminError(e.toString()));
+    }
+  }
 }
