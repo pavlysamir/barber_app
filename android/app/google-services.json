@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "653357952914",
+    "project_id": "barberapp-33582",
+    "storage_bucket": "barberapp-33582.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:653357952914:android:415a301f30c2d798b19b4b",
+        "android_client_info": {
+          "package_name": "com.example.barber_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4A9TUWFBr8Y6YAxk7AVQMb0smaYxCR-4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:653357952914:android:f20c9f0aa7469d01b19b4b",
+        "android_client_info": {
+          "package_name": "com.seblyBerber.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4A9TUWFBr8Y6YAxk7AVQMb0smaYxCR-4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
