@@ -9,6 +9,7 @@ import 'package:barber_app/features/auth/presentation/screens/login_screen.dart'
 import 'package:barber_app/features/employee/managers/employee_cubit.dart';
 import 'package:barber_app/features/employee/presentation/screens/dashboard_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -16,6 +17,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // عمليات async ثقيلة قبل runApp
   await Firebase.initializeApp();
