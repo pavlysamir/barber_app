@@ -17,9 +17,7 @@ class EmployeeDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('تفاصيل $employeeName'),
-      ),
+      appBar: AppBar(title: Text('تفاصيل $employeeName')),
       body: BlocBuilder<AdminCubit, AdminState>(
         builder: (context, state) {
           if (state is AdminReportLoaded) {
@@ -31,7 +29,10 @@ class EmployeeDetailsScreen extends StatelessWidget {
               return const Center(child: Text('لا توجد معاملات اليوم'));
             }
 
-            final grandTotal = transactions.fold<double>(0, (sum, t) => sum + t.totalPrice);
+            final grandTotal = transactions.fold<double>(
+              0,
+              (sum, t) => sum + t.totalPrice,
+            );
 
             return Column(
               children: [
@@ -52,7 +53,8 @@ class EmployeeDetailsScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     t.customerName,
@@ -71,27 +73,32 @@ class EmployeeDetailsScreen extends StatelessWidget {
                                 ],
                               ),
                               const Divider(),
-                              ...t.selectedServices.map((s) => Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 4.h),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(s.name),
-                                        Text('${s.price} ر.س'),
-                                      ],
-                                    ),
-                                  )),
+                              ...t.selectedServices.map(
+                                (s) => Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 4.h),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(s.name),
+                                      Text('${s.price} جنيه'),
+                                    ],
+                                  ),
+                                ),
+                              ),
                               const Divider(),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
                                     'الإجمالي',
-                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                   Text(
-                                    '${t.totalPrice} ر.s',
+                                    '${t.totalPrice} جنيه',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Theme.of(context).primaryColor,
@@ -132,7 +139,7 @@ class EmployeeDetailsScreen extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '$grandTotal ر.س',
+                            '$grandTotal جنيه',
                             style: TextStyle(
                               fontSize: 22.sp,
                               fontWeight: FontWeight.bold,
@@ -175,7 +182,8 @@ class EmployeeDetailsScreen extends StatelessWidget {
       builder: (context) => AlertDialog(
         title: const Text('تأكيد إنهاء اليوم'),
         content: const Text(
-            'هل أنت متأكد من إنهاء اليوم لهذا الموظف؟ سيتم تصفية قائمة الزبائن الحالية.'),
+          'هل أنت متأكد من إنهاء اليوم لهذا الموظف؟ سيتم تصفية قائمة الزبائن الحالية.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -184,9 +192,10 @@ class EmployeeDetailsScreen extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
             onPressed: () {
-              context
-                  .read<AdminCubit>()
-                  .closeEmployeeDay(employeeId, DateTime.now());
+              context.read<AdminCubit>().closeEmployeeDay(
+                employeeId,
+                DateTime.now(),
+              );
               Navigator.pop(context); // Close dialog
               Navigator.pop(context); // Go back to dashboard
             },
