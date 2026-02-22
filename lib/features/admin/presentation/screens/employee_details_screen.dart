@@ -24,8 +24,10 @@ class EmployeeDetailsScreen extends StatelessWidget {
             final transactions = state.transactions
                 .where((t) => t.employeeId == employeeId)
                 .toList();
+            final adminCount = state.adminTallyCounts[employeeId] ?? 0;
+            final employeeCount = transactions.length;
 
-            if (transactions.isEmpty) {
+            if (transactions.isEmpty && adminCount == 0) {
               return const Center(child: Text('لا توجد معاملات اليوم'));
             }
 
@@ -128,6 +130,15 @@ class EmployeeDetailsScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
+                      // Admin vs Employee comparison
+                      if (adminCount > 0 || employeeCount > 0)
+                        _buildCountComparison(
+                          context,
+                          adminCount: adminCount,
+                          employeeCount: employeeCount,
+                        ),
+                      if (adminCount > 0 || employeeCount > 0)
+                        SizedBox(height: 12.h),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -202,6 +213,69 @@ class EmployeeDetailsScreen extends StatelessWidget {
             child: const Text('تأكيد'),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCountComparison(
+    BuildContext context, {
+    required int adminCount,
+    required int employeeCount,
+  }) {
+    final diff = adminCount - employeeCount;
+    final isMatch = diff == 0;
+    final color = isMatch ? Colors.green : Colors.redAccent;
+    final diffText = diff == 0
+        ? 'مطابق ✅'
+        : diff > 0
+            ? 'فرق +$diff ⚠️'
+            : 'فرق $diff ⚠️';
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+      decoration: BoxDecoration(
+        color: color.withAlpha(20),
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: color, width: 1),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _countColumn('عدد الأدمن', adminCount, Colors.black87),
+          Container(width: 1, height: 36.h, color: Colors.grey.shade300),
+          _countColumn('عدد الموظف', employeeCount, Colors.black87),
+          Container(width: 1, height: 36.h, color: Colors.grey.shade300),
+          _countLabel(diffText, color),
+        ],
+      ),
+    );
+  }
+
+  Widget _countColumn(String label, int value, Color valueColor) {
+    return Column(
+      children: [
+        Text(label,
+            style: TextStyle(fontSize: 11.sp, color: Colors.grey)),
+        SizedBox(height: 4.h),
+        Text(
+          '$value',
+          style: TextStyle(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+            color: valueColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _countLabel(String text, Color color) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 12.sp,
+        fontWeight: FontWeight.bold,
+        color: color,
       ),
     );
   }

@@ -18,7 +18,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   @override
   void initState() {
     super.initState();
-    // context.read<AdminCubit>().loadEmployees();
     context.read<AdminCubit>().listenToDailyReport(DateTime.now());
   }
 
@@ -61,7 +60,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       body: BlocConsumer<AdminCubit, AdminState>(
         listener: (context, state) {},
         buildWhen: (previous, current) {
-          // Only rebuild UI for these states, ignore the rest
           return current is AdminLoading ||
               current is AdminReportLoaded ||
               current is AdminError;
@@ -89,21 +87,37 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       ),
                     ),
                   ),
+                  SizedBox(height: 8.h),
                   Expanded(
                     child: ListView.builder(
                       itemCount: state.employeeMap.length,
                       itemBuilder: (context, index) {
-                        final employeeId = state.employeeMap.keys.elementAt(
-                          index,
-                        );
+                        final employeeId =
+                            state.employeeMap.keys.elementAt(index);
                         final employee = state.employeeMap[employeeId]!;
-                        final total = state.employeeTotals[employeeId] ?? 0.0;
-                        final customerCount =
+                        final total =
+                            state.employeeTotals[employeeId] ?? 0.0;
+                        final employeeCount =
                             state.employeeCustomerCounts[employeeId] ?? 0;
+                        final adminCount =
+                            state.adminTallyCounts[employeeId] ?? 0;
+                        final isMatch = adminCount == employeeCount;
 
                         return Card(
                           margin: EdgeInsets.symmetric(vertical: 8.h),
-                          child: ListTile(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                            side: BorderSide(
+                              color: adminCount == 0
+                                  ? Colors.transparent
+                                  : isMatch
+                                      ? Colors.green
+                                      : Colors.redAccent,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12.r),
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -115,36 +129,159 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                 ),
                               );
                             },
-                            leading: CircleAvatar(
-                              child: Text(
-                                employee.name.isNotEmpty
-                                    ? employee.name.substring(0, 1)
-                                    : 'M',
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12.w,
+                                vertical: 10.h,
                               ),
-                            ),
-                            title: Text(employee.name),
-                            subtitle: Text('عدد الزبائن: $customerCount'),
-                            trailing: Wrap(
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                Text(
-                                  '$total جنيه',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Row 1: avatar + name + delete
+                                  Row(
+                                    children: [
+                                      CircleAvatar(
+                                        child: Text(
+                                          employee.name.isNotEmpty
+                                              ? employee.name.substring(0, 1)
+                                              : 'M',
+                                        ),
+                                      ),
+                                      SizedBox(width: 10.w),
+                                      Expanded(
+                                        child: Text(
+                                          employee.name,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15.sp,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        '$total جنيه',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14.sp,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.delete_outline,
+                                          color: Colors.redAccent,
+                                        ),
+                                        onPressed: () =>
+                                            _showDeleteConfirmation(
+                                          context,
+                                          employeeId,
+                                          employee.name,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.delete_outline,
-                                    color: Colors.redAccent,
+                                  Divider(height: 12.h),
+                                  // Row 2: admin tally controls vs employee count
+                                  Row(
+                                    children: [
+                                      // Admin side
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'عدد الأدمن',
+                                              style: TextStyle(
+                                                fontSize: 11.sp,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                            SizedBox(height: 4.h),
+                                            Row(
+                                              children: [
+                                                _tallyButton(
+                                                  icon: Icons.remove,
+                                                  color: Colors.redAccent,
+                                                  onTap: () => context
+                                                      .read<AdminCubit>()
+                                                      .decrementAdminCount(
+                                                          employeeId),
+                                                ),
+                                                SizedBox(width: 8.w),
+                                                Text(
+                                                  '$adminCount',
+                                                  style: TextStyle(
+                                                    fontSize: 20.sp,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 8.w),
+                                                _tallyButton(
+                                                  icon: Icons.add,
+                                                  color: Colors.green,
+                                                  onTap: () => context
+                                                      .read<AdminCubit>()
+                                                      .incrementAdminCount(
+                                                          employeeId),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      // Divider
+                                      Container(
+                                        width: 1,
+                                        height: 40.h,
+                                        color: Colors.grey.shade300,
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 12.w),
+                                      ),
+                                      // Employee side + match indicator
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              'عدد الموظف',
+                                              style: TextStyle(
+                                                fontSize: 11.sp,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                            SizedBox(height: 4.h),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                Text(
+                                                  '$employeeCount',
+                                                  style: TextStyle(
+                                                    fontSize: 20.sp,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 6.w),
+                                                if (adminCount > 0)
+                                                  Icon(
+                                                    isMatch
+                                                        ? Icons.check_circle
+                                                        : Icons.warning_rounded,
+                                                    color: isMatch
+                                                        ? Colors.green
+                                                        : Colors.orange,
+                                                    size: 20.sp,
+                                                  ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  onPressed: () => _showDeleteConfirmation(
-                                    context,
-                                    employeeId,
-                                    employee.name,
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -155,8 +292,28 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
             );
           }
-          return Center(child: Text('something went wrong'));
+          return const Center(child: Text('something went wrong'));
         },
+      ),
+    );
+  }
+
+  Widget _tallyButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 28.w,
+        height: 28.w,
+        decoration: BoxDecoration(
+          color: color.withAlpha(30),
+          borderRadius: BorderRadius.circular(6.r),
+          border: Border.all(color: color, width: 1),
+        ),
+        child: Icon(icon, size: 16.sp, color: color),
       ),
     );
   }

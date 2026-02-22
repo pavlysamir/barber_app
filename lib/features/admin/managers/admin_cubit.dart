@@ -26,6 +26,7 @@ class AdminCubit extends Cubit<AdminState> {
     final Map<String, UserModel> employeeMap = {
       for (var e in employees) e.id: e
     };
+    final adminTallyCounts = await _repository.getAdminTallyCounts(date);
 
     _repository.getDailyTransactions(date).listen((transactions) {
       final totalAmount = transactions.fold<double>(
@@ -50,6 +51,7 @@ class AdminCubit extends Cubit<AdminState> {
           employeeTotals: employeeTotals,
           employeeCustomerCounts: employeeCustomerCounts,
           employeeMap: employeeMap,
+          adminTallyCounts: adminTallyCounts,
         ),
       );
     });
@@ -87,6 +89,24 @@ class AdminCubit extends Cubit<AdminState> {
     try {
       await _repository.deleteEmployee(employeeId);
       // Refresh the report/list to reflect deletion
+      listenToDailyReport(DateTime.now());
+    } catch (e) {
+      emit(AdminError(e.toString()));
+    }
+  }
+
+  Future<void> incrementAdminCount(String employeeId) async {
+    try {
+      await _repository.incrementAdminCount(employeeId, DateTime.now());
+      listenToDailyReport(DateTime.now());
+    } catch (e) {
+      emit(AdminError(e.toString()));
+    }
+  }
+
+  Future<void> decrementAdminCount(String employeeId) async {
+    try {
+      await _repository.decrementAdminCount(employeeId, DateTime.now());
       listenToDailyReport(DateTime.now());
     } catch (e) {
       emit(AdminError(e.toString()));

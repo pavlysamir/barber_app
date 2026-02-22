@@ -19,6 +19,9 @@ abstract class AdminRepository {
     required String name,
   });
   Future<void> deleteEmployee(String employeeId);
+  Future<void> incrementAdminCount(String employeeId, DateTime date);
+  Future<void> decrementAdminCount(String employeeId, DateTime date);
+  Future<Map<String, int>> getAdminTallyCounts(DateTime date);
 }
 
 class AdminRepositoryImpl implements AdminRepository {
@@ -133,5 +136,51 @@ class AdminRepositoryImpl implements AdminRepository {
         .collection(AppConstants.usersCollection)
         .doc(employeeId)
         .delete();
+  }
+
+  String _tallyDateKey(DateTime date) =>
+      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
+  @override
+  Future<void> incrementAdminCount(String employeeId, DateTime date) async {
+    final ref = firestore
+        .collection('daily_tallies')
+        .doc(_tallyDateKey(date))
+        .collection('employees')
+        .doc(employeeId);
+    await ref.set(
+      {'adminCount': FieldValue.increment(1)},
+      SetOptions(merge: true),
+    );
+  }
+
+  @override
+  Future<void> decrementAdminCount(String employeeId, DateTime date) async {
+    final ref = firestore
+        .collection('daily_tallies')
+        .doc(_tallyDateKey(date))
+        .collection('employees')
+        .doc(employeeId);
+    final snap = await ref.get();
+    final current = (snap.data()?['adminCount'] as int?) ?? 0;
+    if (current > 0) {
+      await ref.set(
+        {'adminCount': FieldValue.increment(-1)},
+        SetOptions(merge: true),
+      );
+    }
+  }
+
+  @override
+  Future<Map<String, int>> getAdminTallyCounts(DateTime date) async {
+    final snapshot = await firestore
+        .collection('daily_tallies')
+        .doc(_tallyDateKey(date))
+        .collection('employees')
+        .get();
+    return {
+      for (var doc in snapshot.docs)
+        doc.id: (doc.data()['adminCount'] as int?) ?? 0,
+    };
   }
 }
