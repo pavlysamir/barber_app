@@ -88,6 +88,37 @@ class EmployeeDetailsScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
+                              if (t.selectedProducts.isNotEmpty)
+                                const Divider(
+                                  indent: 20,
+                                  endIndent: 20,
+                                  color: Colors.grey,
+                                  thickness: 0.5,
+                                ),
+                              ...t.selectedProducts.map(
+                                (p) => Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 4.h),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        p.name,
+                                        style: const TextStyle(
+                                          color: Colors.blueGrey,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                      Text(
+                                        '${p.price} جنيه',
+                                        style: const TextStyle(
+                                          color: Colors.blueGrey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                               const Divider(),
                               Row(
                                 mainAxisAlignment:
