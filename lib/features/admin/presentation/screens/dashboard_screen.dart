@@ -103,11 +103,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     child: ListView.builder(
                       itemCount: state.employeeMap.length,
                       itemBuilder: (context, index) {
-                        final employeeId =
-                            state.employeeMap.keys.elementAt(index);
+                        final employeeId = state.employeeMap.keys.elementAt(
+                          index,
+                        );
                         final employee = state.employeeMap[employeeId]!;
-                        final total =
-                            state.employeeTotals[employeeId] ?? 0.0;
+                        final total = state.employeeTotals[employeeId] ?? 0.0;
                         final employeeCount =
                             state.employeeCustomerCounts[employeeId] ?? 0;
                         final adminCount =
@@ -122,8 +122,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                               color: adminCount == 0
                                   ? Colors.transparent
                                   : isMatch
-                                      ? Colors.green
-                                      : Colors.redAccent,
+                                  ? Colors.green
+                                  : Colors.redAccent,
                               width: 1.5,
                             ),
                           ),
@@ -183,10 +183,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                         ),
                                         onPressed: () =>
                                             _showDeleteConfirmation(
-                                          context,
-                                          employeeId,
-                                          employee.name,
-                                        ),
+                                              context,
+                                              employeeId,
+                                              employee.name,
+                                            ),
                                       ),
                                     ],
                                   ),
@@ -216,7 +216,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                                   onTap: () => context
                                                       .read<AdminCubit>()
                                                       .decrementAdminCount(
-                                                          employeeId),
+                                                        employeeId,
+                                                      ),
                                                 ),
                                                 SizedBox(width: 8.w),
                                                 Text(
@@ -233,7 +234,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                                   onTap: () => context
                                                       .read<AdminCubit>()
                                                       .incrementAdminCount(
-                                                          employeeId),
+                                                        employeeId,
+                                                      ),
                                                 ),
                                               ],
                                             ),
@@ -246,7 +248,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                         height: 40.h,
                                         color: Colors.grey.shade300,
                                         margin: EdgeInsets.symmetric(
-                                            horizontal: 12.w),
+                                          horizontal: 12.w,
+                                        ),
                                       ),
                                       // Employee side + match indicator
                                       Expanded(
@@ -303,7 +306,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
             );
           }
-          return const Center(child: Text('something went wrong'));
+          return const Center(child: Text('حدث خطأ غير متوقع'));
         },
       ),
     );
