@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:barber_app/features/auth/data/models/user_model.dart';
 import 'package:barber_app/features/employee/data/models/transaction_model.dart';
+import 'package:barber_app/features/admin/data/models/product_model.dart';
 import 'package:barber_app/core/utils/constants.dart';
 
 abstract class AdminRepository {
@@ -22,6 +23,11 @@ abstract class AdminRepository {
   Future<void> incrementAdminCount(String employeeId, DateTime date);
   Future<void> decrementAdminCount(String employeeId, DateTime date);
   Future<Map<String, int>> getAdminTallyCounts(DateTime date);
+  // Products
+  Stream<List<ProductModel>> getProducts();
+  Future<void> addProduct({required String name, required int count, required double price});
+  Future<void> deleteProduct(String productId);
+  Future<void> decrementProductStock(String productId, int quantity);
 }
 
 class AdminRepositoryImpl implements AdminRepository {
@@ -182,5 +188,39 @@ class AdminRepositoryImpl implements AdminRepository {
       for (var doc in snapshot.docs)
         doc.id: (doc.data()['adminCount'] as int?) ?? 0,
     };
+  }
+
+  @override
+  Stream<List<ProductModel>> getProducts() {
+    return firestore.collection('products').snapshots().map((snapshot) {
+      return snapshot.docs
+          .map((doc) => ProductModel.fromJson(doc.data(), doc.id))
+          .toList();
+    });
+  }
+
+  @override
+  Future<void> addProduct({
+    required String name,
+    required int count,
+    required double price,
+  }) async {
+    await firestore.collection('products').add({
+      'name': name,
+      'count': count,
+      'price': price,
+    });
+  }
+
+  @override
+  Future<void> deleteProduct(String productId) async {
+    await firestore.collection('products').doc(productId).delete();
+  }
+
+  @override
+  Future<void> decrementProductStock(String productId, int quantity) async {
+    await firestore.collection('products').doc(productId).update({
+      'count': FieldValue.increment(-quantity),
+    });
   }
 }

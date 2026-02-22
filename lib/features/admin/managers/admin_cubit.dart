@@ -1,13 +1,16 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:barber_app/features/auth/data/models/user_model.dart';
 import 'package:barber_app/features/employee/data/models/transaction_model.dart';
 import 'package:barber_app/features/admin/data/repos/admin_repo.dart';
+import 'package:barber_app/features/admin/data/models/product_model.dart';
 
 part 'admin_state.dart';
 
 class AdminCubit extends Cubit<AdminState> {
   final AdminRepository _repository;
+  StreamSubscription? _productSubscription;
 
   AdminCubit(this._repository) : super(AdminInitial());
 
@@ -111,5 +114,44 @@ class AdminCubit extends Cubit<AdminState> {
     } catch (e) {
       emit(AdminError(e.toString()));
     }
+  }
+
+  // ── Products ──────────────────────────────────────────
+  void loadProducts() {
+    emit(AdminLoading());
+    _productSubscription?.cancel();
+    _productSubscription = _repository.getProducts().listen(
+      (products) => emit(AdminProductsLoaded(products)),
+      onError: (e) => emit(AdminError(e.toString())),
+    );
+  }
+
+  Future<void> addProduct({
+    required String name,
+    required int count,
+    required double price,
+  }) async {
+    try {
+      await _repository.addProduct(name: name, count: count, price: price);
+      emit(AdminProductSuccess());
+      // No need to call loadProducts() again as the stream listener handles it
+    } catch (e) {
+      emit(AdminError(e.toString()));
+    }
+  }
+
+  Future<void> deleteProduct(String productId) async {
+    try {
+      await _repository.deleteProduct(productId);
+      // No need to call loadProducts() again as the stream listener handles it
+    } catch (e) {
+      emit(AdminError(e.toString()));
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _productSubscription?.cancel();
+    return super.close();
   }
 }

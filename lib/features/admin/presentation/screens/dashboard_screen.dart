@@ -6,6 +6,7 @@ import 'package:barber_app/features/admin/managers/admin_cubit.dart';
 import 'package:barber_app/features/auth/managers/auth_cubit.dart';
 import 'package:barber_app/features/admin/presentation/screens/employee_details_screen.dart';
 import 'package:barber_app/features/admin/presentation/screens/add_employee_screen.dart';
+import 'package:barber_app/features/admin/presentation/screens/products_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -31,6 +32,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           child: const Text('لوحة التحكم'),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.inventory_2_outlined),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProductsScreen()),
+              );
+            },
+            tooltip: 'المنتجات',
+          ),
           BlocConsumer<AuthCubit, AuthState>(
             listener: (context, state) {
               if (state is AuthLogout) {

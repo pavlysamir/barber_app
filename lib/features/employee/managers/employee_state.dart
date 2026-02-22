@@ -13,10 +13,11 @@ class EmployeeLoading extends EmployeeState {}
 
 class EmployeeServicesLoaded extends EmployeeState {
   final List<ServiceModel> services;
-  const EmployeeServicesLoaded(this.services);
+  final List<ProductModel> products;
+  const EmployeeServicesLoaded({required this.services, required this.products});
 
   @override
-  List<Object?> get props => [services];
+  List<Object?> get props => [services, products];
 }
 
 class EmployeeDashboardLoaded extends EmployeeState {

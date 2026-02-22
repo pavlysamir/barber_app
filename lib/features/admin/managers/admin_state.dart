@@ -50,3 +50,14 @@ class AdminError extends AdminState {
 }
 
 class AdminAddEmployeeSuccess extends AdminState {}
+
+class AdminProductsLoaded extends AdminState {
+  final List<ProductModel> products;
+  const AdminProductsLoaded(this.products);
+
+  @override
+  List<Object?> get props => [products];
+}
+
+class AdminProductSuccess extends AdminState {}
+

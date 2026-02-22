@@ -1,12 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:barber_app/features/employee/data/models/service_model.dart';
 import 'package:barber_app/features/employee/data/models/transaction_model.dart';
+import 'package:barber_app/features/admin/data/models/product_model.dart';
 import 'package:barber_app/core/utils/constants.dart';
 
 abstract class EmployeeRepository {
   Future<List<ServiceModel>> getServices();
+  Future<List<ProductModel>> getProducts();
   Future<void> saveTransaction(TransactionModel transaction);
   Stream<List<TransactionModel>> getTodayTransactions(String employeeId);
+  Future<void> decrementProductStock(String productId, int quantity);
 }
 
 class EmployeeRepositoryImpl implements EmployeeRepository {
@@ -44,5 +47,19 @@ class EmployeeRepositoryImpl implements EmployeeRepository {
         .map((snapshot) => snapshot.docs
             .map((doc) => TransactionModel.fromJson(doc.data(), doc.id))
             .toList());
+  }
+  @override
+  Future<List<ProductModel>> getProducts() async {
+    final snapshot = await firestore.collection('products').get();
+    return snapshot.docs
+        .map((doc) => ProductModel.fromJson(doc.data(), doc.id))
+        .toList();
+  }
+
+  @override
+  Future<void> decrementProductStock(String productId, int quantity) async {
+    await firestore.collection('products').doc(productId).update({
+      'count': FieldValue.increment(-quantity),
+    });
   }
 }
