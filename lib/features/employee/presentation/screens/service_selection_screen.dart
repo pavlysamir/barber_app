@@ -220,9 +220,10 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
   }
 
   Widget _buildBottomBar() {
-    final servicesTotal = _selectedServices.fold<double>(0, (sum, s) => sum + s.price);
-    final productsTotal = _selectedProducts.fold<double>(0, (sum, p) => sum + p.price);
-    final grandTotal = servicesTotal + productsTotal;
+    final servicesTotal =
+        _selectedServices.fold<double>(0, (sum, s) => sum + s.price);
+    final productsTotal =
+        _selectedProducts.fold<double>(0, (sum, p) => sum + p.price);
 
     return Container(
       padding: EdgeInsets.all(24.w),
@@ -232,27 +233,49 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
           BoxShadow(blurRadius: 10, color: Colors.black.withOpacity(0.05)),
         ],
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('الإجمالي الكلي'),
-                Text(
-                  '$grandTotal جنيه',
-                  style: TextStyle(
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+          if (_selectedProducts.isNotEmpty)
+            Padding(
+              padding: EdgeInsets.only(bottom: 8.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('مبيعات منتجات (أدمن فقط):',
+                      style: TextStyle(color: Colors.grey)),
+                  Text('$productsTotal جنيه',
+                      style: const TextStyle(color: Colors.grey)),
+                ],
+              ),
             ),
-          ),
-          ElevatedButton(
-            onPressed: (_selectedServices.isEmpty && _selectedProducts.isEmpty) ? null : _submit,
-            child: const Text('حفظ المعاملة'),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('إجمالي الخدمات'),
+                    Text(
+                      '$servicesTotal جنيه',
+                      style: TextStyle(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ElevatedButton(
+                onPressed: (_selectedServices.isEmpty &&
+                        _selectedProducts.isEmpty)
+                    ? null
+                    : _submit,
+                child: const Text('حفظ المعاملة'),
+              ),
+            ],
           ),
         ],
       ),
@@ -261,9 +284,9 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
 
   void _submit() {
     final user = (context.read<AuthCubit>().state as AuthAuthenticated).user;
-    final servicesTotal = _selectedServices.fold<double>(0, (sum, s) => sum + s.price);
-    final productsTotal = _selectedProducts.fold<double>(0, (sum, p) => sum + p.price);
-    
+    final servicesTotal =
+        _selectedServices.fold<double>(0, (sum, s) => sum + s.price);
+
     final transaction = TransactionModel(
       id: '',
       employeeId: user.id,
@@ -272,7 +295,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
           : _customerNameController.text,
       selectedServices: _selectedServices,
       selectedProducts: _selectedProducts,
-      totalPrice: servicesTotal + productsTotal,
+      totalPrice: servicesTotal,
       date: DateTime.now(),
     );
     context.read<EmployeeCubit>().submitTransaction(transaction);

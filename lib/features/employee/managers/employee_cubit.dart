@@ -29,7 +29,12 @@ class EmployeeCubit extends Cubit<EmployeeState> {
     _transactionSubscription?.cancel();
     _transactionSubscription = _repository.getTodayTransactions(employeeId).listen(
       (transactions) {
-        final todayTotal = transactions.fold<double>(0, (sum, t) => sum + t.totalPrice);
+        final todayTotal = transactions.fold<double>(
+          0,
+          (sum, t) =>
+              sum +
+              t.selectedServices.fold<double>(0, (sSum, s) => sSum + s.price),
+        );
         emit(EmployeeDashboardLoaded(
           transactions: transactions,
           todayTotal: todayTotal,

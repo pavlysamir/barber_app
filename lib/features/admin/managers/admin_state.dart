@@ -22,6 +22,7 @@ class AdminEmployeesLoaded extends AdminState {
 class AdminReportLoaded extends AdminState {
   final List<TransactionModel> transactions;
   final double totalAmount;
+  final double productTotal;
   final Map<String, double> employeeTotals;
   final Map<String, int> employeeCustomerCounts;
   final Map<String, UserModel> employeeMap;
@@ -30,6 +31,7 @@ class AdminReportLoaded extends AdminState {
   const AdminReportLoaded({
     required this.transactions,
     required this.totalAmount,
+    required this.productTotal,
     required this.employeeTotals,
     required this.employeeCustomerCounts,
     required this.employeeMap,
@@ -37,8 +39,15 @@ class AdminReportLoaded extends AdminState {
   });
 
   @override
-  List<Object?> get props =>
-      [transactions, totalAmount, employeeTotals, employeeCustomerCounts, employeeMap, adminTallyCounts];
+  List<Object?> get props => [
+        transactions,
+        totalAmount,
+        productTotal,
+        employeeTotals,
+        employeeCustomerCounts,
+        employeeMap,
+        adminTallyCounts
+      ];
 }
 
 class AdminError extends AdminState {

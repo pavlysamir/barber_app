@@ -33,7 +33,9 @@ class EmployeeDetailsScreen extends StatelessWidget {
 
             final grandTotal = transactions.fold<double>(
               0,
-              (sum, t) => sum + t.totalPrice,
+              (sum, t) =>
+                  sum +
+                  t.selectedServices.fold<double>(0, (sSum, s) => sSum + s.price),
             );
 
             return Column(
@@ -125,17 +127,17 @@ class EmployeeDetailsScreen extends StatelessWidget {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
-                                    'الإجمالي',
+                                    'إجمالي (خدمات + منتجات)',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                      color: Colors.grey,
                                     ),
                                   ),
                                   Text(
                                     '${t.totalPrice} جنيه',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).primaryColor,
-                                      fontSize: 16.sp,
+                                      color: Colors.grey,
+                                      fontSize: 12.sp,
                                     ),
                                   ),
                                 ],
@@ -181,7 +183,7 @@ class EmployeeDetailsScreen extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '$grandTotal جنيه',
+                            '${grandTotal.toStringAsFixed(2)} جنيه',
                             style: TextStyle(
                               fontSize: 22.sp,
                               fontWeight: FontWeight.bold,
@@ -203,7 +205,7 @@ class EmployeeDetailsScreen extends StatelessWidget {
                             ),
                           ),
                           onPressed: () => _showEndDayDialog(context),
-                          child: const Text('إنهاء اليوم وتصفية الحساب'),
+                          child: const Text('إنهاء المعاملات وتصفية الحساب'),
                         ),
                       ),
                     ],

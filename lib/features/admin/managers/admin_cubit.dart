@@ -37,12 +37,21 @@ class AdminCubit extends Cubit<AdminState> {
         (sum, t) => sum + t.totalPrice,
       );
 
+      double productTotal = 0;
       final Map<String, double> employeeTotals = {};
       final Map<String, int> employeeCustomerCounts = {};
 
       for (var t in transactions) {
+        // Calculate services total for this employee
+        final serviceIncome =
+            t.selectedServices.fold<double>(0, (sum, s) => sum + s.price);
         employeeTotals[t.employeeId] =
-            (employeeTotals[t.employeeId] ?? 0) + t.totalPrice;
+            (employeeTotals[t.employeeId] ?? 0) + serviceIncome;
+
+        // Sum products for all transactions
+        productTotal +=
+            t.selectedProducts.fold<double>(0, (sum, p) => sum + p.price);
+
         employeeCustomerCounts[t.employeeId] =
             (employeeCustomerCounts[t.employeeId] ?? 0) + 1;
       }
@@ -51,6 +60,7 @@ class AdminCubit extends Cubit<AdminState> {
         AdminReportLoaded(
           transactions: transactions,
           totalAmount: totalAmount,
+          productTotal: productTotal,
           employeeTotals: employeeTotals,
           employeeCustomerCounts: employeeCustomerCounts,
           employeeMap: employeeMap,

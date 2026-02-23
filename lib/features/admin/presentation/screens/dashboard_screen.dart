@@ -7,6 +7,7 @@ import 'package:barber_app/features/auth/managers/auth_cubit.dart';
 import 'package:barber_app/features/admin/presentation/screens/employee_details_screen.dart';
 import 'package:barber_app/features/admin/presentation/screens/add_employee_screen.dart';
 import 'package:barber_app/features/admin/presentation/screens/products_screen.dart';
+import 'package:barber_app/features/admin/presentation/screens/product_sales_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -85,7 +86,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSummaryCard(state.totalAmount),
+                  _buildSummaryCard(state.totalAmount, state.productTotal),
                   SizedBox(height: 24.h),
                   SlideInRight(
                     delay: const Duration(milliseconds: 300),
@@ -178,9 +179,26 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                       ),
                                       IconButton(
                                         icon: const Icon(
+                                          Icons.receipt_long_outlined,
+                                          color: Colors.green,
+                                        ),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                        onPressed: () => _showEndSalesConfirmation(
+                                          context,
+                                          employeeId,
+                                          employee.name,
+                                        ),
+                                        tooltip: 'إنهاء المعاملات وتصفية الحساب',
+                                      ),
+                                      SizedBox(width: 8.w),
+                                      IconButton(
+                                        icon: const Icon(
                                           Icons.delete_outline,
                                           color: Colors.redAccent,
                                         ),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
                                         onPressed: () =>
                                             _showDeleteConfirmation(
                                               context,
@@ -360,7 +378,40 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildSummaryCard(double total) {
+  void _showEndSalesConfirmation(
+    BuildContext context,
+    String employeeId,
+    String? name,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('إنهاء المعاملات'),
+        content: Text(
+          'هل أنت متأكد من إنهاء المعاملات وتصفية الحساب للموظف "${name ?? employeeId}"؟',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            onPressed: () {
+              context.read<AdminCubit>().closeEmployeeDay(
+                    employeeId,
+                    DateTime.now(),
+                  );
+              Navigator.pop(context);
+            },
+            child: const Text('تأكيد التصفية'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryCard(double total, double productTotal) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(24.w),
@@ -374,15 +425,48 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         child: Column(
           children: [
             const Text(
-              'إجمالي دخل اليوم بالكامل',
+              'إجمالي دخل اليوم (خدمات + منتجات)',
               style: TextStyle(color: Colors.white70),
             ),
             Text(
-              '$total جنيه',
+              '${total.toStringAsFixed(2)} جنيه',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 32.sp,
+                fontSize: 28.sp,
                 fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Divider(color: Colors.white24, height: 24),
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ProductSalesScreen()),
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.inventory_2_outlined,
+                      color: Colors.blueAccent, size: 20),
+                  SizedBox(width: 8.w),
+                  const Text(
+                    'مبيعات المنتجات اليوم:',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                  SizedBox(width: 8.w),
+                  Text(
+                    '${productTotal.toStringAsFixed(2)} جنيه',
+                    style: TextStyle(
+                      color: Colors.blueAccent,
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  const Icon(Icons.arrow_forward_ios,
+                      color: Colors.white38, size: 12),
+                ],
               ),
             ),
           ],
