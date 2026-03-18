@@ -70,3 +70,10 @@ class AdminProductsLoaded extends AdminState {
 
 class AdminProductSuccess extends AdminState {}
 
+class AdminEmployeeWithdrawalsLoaded extends AdminState {
+  final List<WithdrawalModel> withdrawals;
+  const AdminEmployeeWithdrawalsLoaded(this.withdrawals);
+
+  @override
+  List<Object?> get props => [withdrawals];
+}

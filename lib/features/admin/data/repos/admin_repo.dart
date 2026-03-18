@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:barber_app/features/auth/data/models/user_model.dart';
 import 'package:barber_app/features/employee/data/models/transaction_model.dart';
+import 'package:barber_app/features/employee/data/models/withdrawal_model.dart';
 import 'package:barber_app/features/admin/data/models/product_model.dart';
 import 'package:barber_app/core/utils/constants.dart';
 
@@ -28,6 +29,8 @@ abstract class AdminRepository {
   Future<void> addProduct({required String name, required int count, required double price});
   Future<void> deleteProduct(String productId);
   Future<void> decrementProductStock(String productId, int quantity);
+  // Withdrawals
+  Stream<List<WithdrawalModel>> getEmployeeTodayWithdrawals(String employeeId);
 }
 
 class AdminRepositoryImpl implements AdminRepository {
@@ -222,5 +225,21 @@ class AdminRepositoryImpl implements AdminRepository {
     await firestore.collection('products').doc(productId).update({
       'count': FieldValue.increment(-quantity),
     });
+  }
+
+  @override
+  Stream<List<WithdrawalModel>> getEmployeeTodayWithdrawals(
+      String employeeId) {
+    final today = DateTime.now();
+    final startOfDay = DateTime(today.year, today.month, today.day);
+    return firestore
+        .collection(AppConstants.withdrawalsCollection)
+        .where('employeeId', isEqualTo: employeeId)
+        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+        .orderBy('date', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => WithdrawalModel.fromJson(doc.data(), doc.id))
+            .toList());
   }
 }

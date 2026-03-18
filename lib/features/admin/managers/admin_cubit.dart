@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:barber_app/features/auth/data/models/user_model.dart';
 import 'package:barber_app/features/employee/data/models/transaction_model.dart';
+import 'package:barber_app/features/employee/data/models/withdrawal_model.dart';
 import 'package:barber_app/features/admin/data/repos/admin_repo.dart';
 import 'package:barber_app/features/admin/data/models/product_model.dart';
 
@@ -11,6 +12,7 @@ part 'admin_state.dart';
 class AdminCubit extends Cubit<AdminState> {
   final AdminRepository _repository;
   StreamSubscription? _productSubscription;
+  StreamSubscription? _withdrawalSubscription;
 
   AdminCubit(this._repository) : super(AdminInitial());
 
@@ -126,6 +128,16 @@ class AdminCubit extends Cubit<AdminState> {
     }
   }
 
+  // ── Withdrawals ───────────────────────────────────────
+  void listenToEmployeeWithdrawals(String employeeId) {
+    _withdrawalSubscription?.cancel();
+    _withdrawalSubscription =
+        _repository.getEmployeeTodayWithdrawals(employeeId).listen(
+      (withdrawals) => emit(AdminEmployeeWithdrawalsLoaded(withdrawals)),
+      onError: (e) => emit(AdminError(e.toString())),
+    );
+  }
+
   // ── Products ──────────────────────────────────────────
   void loadProducts() {
     emit(AdminLoading());
@@ -162,6 +174,7 @@ class AdminCubit extends Cubit<AdminState> {
   @override
   Future<void> close() {
     _productSubscription?.cancel();
+    _withdrawalSubscription?.cancel();
     return super.close();
   }
 }
